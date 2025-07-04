@@ -57,7 +57,12 @@ const Home = ({ userInfo }) => {
     let attachmentUrl = null;
     if (attachment) {
       const attachmentRef = ref(storageService, `${userInfo.uid}/${uuidv4()}`);
-      await uploadString(attachmentRef, attachment, "data_url");
+
+      const metadata = {
+        cacheControl: "public,max-age=31536000",
+      };
+
+      await uploadString(attachmentRef, attachment, "data_url", metadata);
       attachmentUrl = await getDownloadURL(attachmentRef);
     }
 
@@ -105,16 +110,32 @@ const Home = ({ userInfo }) => {
       }
     }); */
   };
+
   const onFileChange = (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
     const reader = new FileReader();
-    reader.onloadend = (event) => {
-      const {
-        target: { result },
-      } = event;
-      setAttachment(result);
+    reader.onload = (readerEvent) => {
+      const image = new Image();
+      image.onload = () => {
+        // 캔버스를 통해 이미지 크기 줄이기 (1/4 크기)
+        const canvas = document.createElement("canvas");
+        canvas.width = image.width / 2; // 필요 시 /4로 변경
+        canvas.height = image.height / 2;
+
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+        // canvas를 data_url로 변환
+        const resizedDataUrl = canvas.toDataURL("image/jpeg", 0.8); // 품질 80%
+        setAttachment(resizedDataUrl);
+      };
+      image.src = readerEvent.target.result;
     };
-    reader.readAsDataURL(event.target.files[0]);
+    reader.readAsDataURL(file);
   };
+
   const onAttachmentClear = () => setAttachment(null);
   return (
     <div className={styles.container}>
