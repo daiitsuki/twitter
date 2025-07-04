@@ -2,15 +2,13 @@ import "./fbase";
 
 import { useEffect, useState } from "react";
 import AppRouter from "./components/Router";
-import { authService, dbService, messaging } from "./fbase";
+import { authService, dbService } from "./fbase";
 import { doc, getDoc, setDoc } from "firebase/firestore";
-import { getToken } from "firebase/messaging";
 
 function App() {
   const [init, setInit] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userInfo, setUserInfo] = useState({});
-  const [msgToken, setMsgToken] = useState("");
 
   const refreshUserData = () => {
     const user = authService.currentUser;
@@ -32,15 +30,15 @@ function App() {
           updateProfile: () =>
             user.updateProfile(user, { displayName: user.displayName }),
         });
-        const swRegistration = await navigator.serviceWorker.register(
+        /*      const swRegistration = await navigator.serviceWorker.register(
           `${process.env.PUBLIC_URL}/firebase-messaging-sw.js`
-        );
-        const token = await getToken(messaging, {
+        ); */
+        /*  const token = await getToken(messaging, {
           vapidKey:
             "BHSrTsbuFPyMNqqrt6r9SMRG3ysncEjssMu3k3LUsP_IcTxpF5Dy3ntvkpkG9DGL6ooh_X8_NfIr23R5gnD3jmg",
           serviceWorkerRegistration: swRegistration,
         });
-        setMsgToken(token);
+        setMsgToken(token); */
 
         const docRef = doc(dbService, "users", user.uid);
         const docSnap = await getDoc(docRef);
@@ -48,7 +46,6 @@ function App() {
           await setDoc(docRef, {
             displayName: user.displayName,
             uid: user.uid,
-            msgToken: token,
           });
         }
       } else {
@@ -70,7 +67,6 @@ function App() {
           refreshUserData={refreshUserData}
           isLoggedIn={isLoggedIn}
           userInfo={userInfo}
-          msgToken={msgToken}
         />
       ) : (
         "로딩중..."

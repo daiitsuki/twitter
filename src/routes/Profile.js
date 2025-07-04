@@ -1,15 +1,11 @@
-import { authService, dbService } from "../fbase";
+import { authService } from "../fbase";
 import { updateProfile } from "firebase/auth";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./Profile.module.css";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBell, faBellSlash } from "@fortawesome/free-solid-svg-icons";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
 
-const Profile = ({ refreshUserData, userInfo, msgToken }) => {
+const Profile = ({ refreshUserData, userInfo }) => {
   const [newProfileName, setNewProfileName] = useState(userInfo.displayName);
-  const [notification, setNotification] = useState(false);
 
   const navigate = useNavigate();
   const onLogOutClick = () => {
@@ -28,19 +24,7 @@ const Profile = ({ refreshUserData, userInfo, msgToken }) => {
     }
   };
 
-  const checkNotification = async () => {
-    const prevToken = (
-      await getDoc(doc(dbService, "users", userInfo.uid))
-    ).data().msgToken;
-
-    if (msgToken === prevToken) {
-      setNotification(true);
-    } else {
-      setNotification(false);
-    }
-  };
-
-  const onClick = async () => {
+  /*  const onClick = async () => {
     const docRef = doc(dbService, "users", userInfo.uid);
     if (notification) {
       await updateDoc(docRef, {
@@ -59,11 +43,7 @@ const Profile = ({ refreshUserData, userInfo, msgToken }) => {
         "현재 디바이스에서 알림을 받습니다.\n마지막으로 설정한 디바이스에서만 알림을 받을 수 있습니다."
       );
     }
-  };
-
-  useEffect(() => {
-    checkNotification();
-  });
+  }; */
 
   return (
     <>
@@ -86,22 +66,10 @@ const Profile = ({ refreshUserData, userInfo, msgToken }) => {
         <span>알림 설정</span>
         <div className={styles.form}>
           <input
-            value={
-              notification
-                ? "이 기기에서 알림을 받습니다."
-                : "알림을 받지 않는 기기입니다."
-            }
+            value={"알림 설정 준비중입니다."}
             className={styles.inputText}
             disabled
           />
-
-          <button onClick={onClick} className={styles.confirm}>
-            {notification ? (
-              <FontAwesomeIcon icon={faBell} size="xl" />
-            ) : (
-              <FontAwesomeIcon icon={faBellSlash} size="xl" />
-            )}
-          </button>
         </div>
       </div>
 
