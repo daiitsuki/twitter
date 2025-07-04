@@ -3,8 +3,6 @@ import { dbService, storageService } from "../fbase";
 import {
   addDoc,
   collection,
-  doc,
-  getDoc,
   limit,
   onSnapshot,
   orderBy,
@@ -46,7 +44,7 @@ const Home = ({ userInfo }) => {
   const onSubmit = async (event) => {
     event.preventDefault();
 
-    // 현서 토큰
+    /*   // 현서 토큰
     const msgToken1 = (
       await getDoc(doc(dbService, "users", "GAdhAZcnfKPk9Cme37xvRPTQ9Z03"))
     ).data().msgToken;
@@ -54,7 +52,7 @@ const Home = ({ userInfo }) => {
     // 내 토큰
     const msgToken2 = (
       await getDoc(doc(dbService, "users", "LKzKN0SV2AeFfgMUG8t3aKKaBz62"))
-    ).data().msgToken;
+    ).data().msgToken; */
 
     let attachmentUrl = null;
     if (attachment) {
@@ -75,15 +73,15 @@ const Home = ({ userInfo }) => {
     setTweet("");
     setAttachment(null);
 
-    let toUser;
+    /*    let toUser;
     if (userInfo.uid === "GAdhAZcnfKPk9Cme37xvRPTQ9Z03") {
       toUser = msgToken1;
     } else if (userInfo.uid === "LKzKN0SV2AeFfgMUG8t3aKKaBz62") {
       toUser = msgToken2;
     }
-    console.log();
+    console.log(); */
 
-    fetch("https://fcm.googleapis.com/fcm/send", {
+    /*  fetch("https://fcm.googleapis.com/fcm/send", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -105,7 +103,7 @@ const Home = ({ userInfo }) => {
       if (res.ok) {
         console.log("생성이 완료 되었습니다.");
       }
-    });
+    }); */
   };
   const onFileChange = (event) => {
     const reader = new FileReader();

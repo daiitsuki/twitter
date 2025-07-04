@@ -4,7 +4,7 @@ import Auth from "../routes/Auth";
 import Navigation from "./Navigation";
 import Profile from "../routes/Profile";
 
-const AppRouter = ({ refreshUserData, isLoggedIn, userInfo, msgToken }) => {
+const AppRouter = ({ refreshUserData, isLoggedIn, userInfo }) => {
   return (
     <div className="container">
       <Router>
@@ -19,7 +19,6 @@ const AppRouter = ({ refreshUserData, isLoggedIn, userInfo, msgToken }) => {
                   <Profile
                     refreshUserData={refreshUserData}
                     userInfo={userInfo}
-                    msgToken={msgToken}
                   />
                 }
               />
