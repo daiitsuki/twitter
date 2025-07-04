@@ -25,9 +25,9 @@ const Home = ({ userInfo }) => {
       collection(dbService, "tweets"),
       orderBy("createdAt", "desc"),
       //////////////////////
-      //  30개로 개수제한  //
+      //  20개로 개수제한  //
       //////////////////////
-      limit(30)
+      limit(20)
     );
     onSnapshot(q, (snapshot) => {
       const tweetArr = snapshot.docs.map((doc) => ({
@@ -56,7 +56,7 @@ const Home = ({ userInfo }) => {
 
     let attachmentUrl = null;
     if (attachment) {
-      const attachmentRef = ref(storageService, `${userInfo.uid}/${uuidv4()}`);
+      const attachmentRef = ref(storageService, ` ${userInfo.uid}/${uuidv4()}`);
 
       const metadata = {
         cacheControl: "public,max-age=31536000",
@@ -97,9 +97,9 @@ const Home = ({ userInfo }) => {
         to: toUser,
         notification: {
           title: "달톡",
-          body: `${userInfo.displayName}: ${
+          body: ${userInfo.displayName}: ${
             attachmentUrl ? "(사진을 보냈습니다)" : ""
-          } ${tweet}`,
+          } ${tweet},
           icon: "https://i.ibb.co/gRgZKdS/logo96.png",
           image: attachmentUrl,
         },

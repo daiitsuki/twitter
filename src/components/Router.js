@@ -4,7 +4,7 @@ import Auth from "../routes/Auth";
 import Navigation from "./Navigation";
 import Profile from "../routes/Profile";
 
-const AppRouter = ({ refreshUserData, isLoggedIn, userInfo }) => {
+const AppRouter = ({ isLoggedIn, userInfo, loginWithNickname, logout, updateUserDisplayName }) => {
   return (
     <div className="container">
       <Router>
@@ -15,16 +15,14 @@ const AppRouter = ({ refreshUserData, isLoggedIn, userInfo }) => {
               <Route path="/" element={<Home userInfo={userInfo} />} />
               <Route
                 path="/profile"
-                element={
-                  <Profile
-                    refreshUserData={refreshUserData}
-                    userInfo={userInfo}
-                  />
-                }
+                element={<Profile userInfo={userInfo} logout={logout} updateUserDisplayName={updateUserDisplayName} />}
               />
             </>
           ) : (
-            <Route path="/" element={<Auth />} />
+            <Route
+              path="/"
+              element={<Auth loginWithNickname={loginWithNickname} />}
+            />
           )}
         </Routes>
       </Router>
