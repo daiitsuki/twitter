@@ -57,8 +57,8 @@ module.exports = async (req, res) => {
     const tokens = [];
     usersSnapshot.forEach((doc) => {
       const user = doc.data();
-      if (doc.id !== senderId && user.fcmToken) {
-        tokens.push(user.fcmToken);
+      if (doc.id !== senderId && user.msgToken && user.notificationsEnabled) {
+        tokens.push(user.msgToken);
       }
     });
 
