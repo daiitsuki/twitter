@@ -44,16 +44,6 @@ const Home = ({ userInfo }) => {
   const onSubmit = async (event) => {
     event.preventDefault();
 
-    /*   // 현서 토큰
-    const msgToken1 = (
-      await getDoc(doc(dbService, "users", "GAdhAZcnfKPk9Cme37xvRPTQ9Z03"))
-    ).data().msgToken;
-
-    // 내 토큰
-    const msgToken2 = (
-      await getDoc(doc(dbService, "users", "LKzKN0SV2AeFfgMUG8t3aKKaBz62"))
-    ).data().msgToken; */
-
     let attachmentUrl = null;
     if (attachment) {
       const attachmentRef = ref(storageService, ` ${userInfo.uid}/${uuidv4()}`);
@@ -78,37 +68,23 @@ const Home = ({ userInfo }) => {
     setTweet("");
     setAttachment(null);
 
-    /*    let toUser;
-    if (userInfo.uid === "GAdhAZcnfKPk9Cme37xvRPTQ9Z03") {
-      toUser = msgToken1;
-    } else if (userInfo.uid === "LKzKN0SV2AeFfgMUG8t3aKKaBz62") {
-      toUser = msgToken2;
+    try {
+      await fetch(
+        "https://twitter-oopdtj28x-daiitsukis-projects.vercel.app/api/sendNotification",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            message: tweet,
+            senderId: userInfo.uid,
+          }),
+        }
+      );
+    } catch (error) {
+      console.error("메시지를 전송하는데 실패했습니다.", error);
     }
-    console.log(); */
-
-    /*  fetch("https://fcm.googleapis.com/fcm/send", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization:
-          "key=AAAAsVxo5vQ:APA91bE_xs8msCipHiLIr9Jfd3TOX2Ub3s1Pti0nDLEoTLjC2pi8AWv7rOcI8bgneSxXiSCxSQFB-v8jiE73PvTP43GZjTQivoHSJVK2WB3PyDxNACZvytnSpvNXbFU7HmsgKh839UKG",
-      },
-      body: JSON.stringify({
-        to: toUser,
-        notification: {
-          title: "달톡",
-          body: ${userInfo.displayName}: ${
-            attachmentUrl ? "(사진을 보냈습니다)" : ""
-          } ${tweet},
-          icon: "https://i.ibb.co/gRgZKdS/logo96.png",
-          image: attachmentUrl,
-        },
-      }),
-    }).then((res) => {
-      if (res.ok) {
-        console.log("생성이 완료 되었습니다.");
-      }
-    }); */
   };
 
   const onFileChange = (event) => {
