@@ -70,7 +70,7 @@ const Home = ({ userInfo }) => {
 
     try {
       await fetch(
-        "https://twitter-oopdtj28x-daiitsukis-projects.vercel.app/api/sendNotification",
+        "https://twitter-woad-eight.vercel.app/api/sendNotification",
         {
           method: "POST",
           headers: {
