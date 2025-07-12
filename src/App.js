@@ -22,15 +22,20 @@ function App() {
   const loginWithNickname = async (nickname) => {
     const uid = uuidv4();
     let msgToken = null;
+
     try {
-      msgToken = await getToken(messaging, {
-        vapidKey:
-          "BHSrTsbuFPyMNqqrt6r9SMRG3ysncEjssMu3k3LUsP_IcTxpF5Dy3ntvkpkG9DGL6ooh_X8_NfIr23R5gnD3jmg",
-        serviceWorkerRegistration: await navigator.serviceWorker.register(
-          "/twitter/firebase-messaging-sw.js",
-          { scope: "/twitter/" }
-        ),
-      });
+      const registration = await navigator.serviceWorker.getRegistration(
+        "/twitter/"
+      );
+      if (registration) {
+        msgToken = await getToken(messaging, {
+          vapidKey:
+            "BHSrTsbuFPyMNqqrt6r9SMRG3ysncEjssMu3k3LUsP_IcTxpF5Dy3ntvkpkG9DGL6ooh_X8_NfIr23R5gnD3jmg",
+          serviceWorkerRegistration: registration,
+        });
+      } else {
+        console.warn("서비스 워커가 등록되지 않았습니다.");
+      }
     } catch (err) {
       console.warn("FCM 토큰 가져오기 실패", err);
     }
@@ -41,6 +46,7 @@ function App() {
       createdAt: Date.now(),
       msgToken: msgToken || null,
     };
+
     try {
       await setDoc(doc(dbService, "users", uid), userData);
       localStorage.setItem("simple-auth-user", JSON.stringify(userData));
@@ -91,14 +97,20 @@ function App() {
   useEffect(() => {
     const swPath = `${process.env.PUBLIC_URL}/firebase-messaging-sw.js`;
     if ("serviceWorker" in navigator) {
-      navigator.serviceWorker
-        .register(swPath)
-        .then((registration) => {
-          console.log("서비스 워커 등록 성공", registration);
-        })
-        .catch((error) => {
-          console.error("서비스 워커 등록 실패", error);
-        });
+      navigator.serviceWorker.getRegistration(swPath).then((registration) => {
+        if (registration) {
+          console.log("이미 등록된 서비스 워커가 있습니다:", registration);
+        } else {
+          navigator.serviceWorker
+            .register(swPath)
+            .then((registration) => {
+              console.log("서비스 워커 등록 성공", registration);
+            })
+            .catch((error) => {
+              console.error("서비스 워커 등록 실패", error);
+            });
+        }
+      });
     }
   }, []);
 
