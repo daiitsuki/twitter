@@ -1,9 +1,10 @@
 import "./fbase";
 import { useEffect, useState } from "react";
 import AppRouter from "./components/Router";
-import { dbService } from "./fbase";
-import { collection, addDoc } from "firebase/firestore";
+import { dbService, messaging } from "./fbase";
+import { doc, updateDoc, setDoc } from "firebase/firestore";
 import { v4 as uuidv4 } from "uuid";
+import { getToken } from "firebase/messaging";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -20,13 +21,28 @@ function App() {
 
   const loginWithNickname = async (nickname) => {
     const uid = uuidv4();
+    let msgToken = null;
+    try {
+      msgToken = await getToken(messaging, {
+        vapidKey:
+          "BHSrTsbuFPyMNqqrt6r9SMRG3ysncEjssMu3k3LUsP_IcTxpF5Dy3ntvkpkG9DGL6ooh_X8_NfIr23R5gnD3jmg",
+        serviceWorkerRegistration: await navigator.serviceWorker.register(
+          "/twitter/firebase-messaging-sw.js",
+          { scope: "/twitter/" }
+        ),
+      });
+    } catch (err) {
+      console.warn("FCM 토큰 가져오기 실패", err);
+    }
+
     const userData = {
       uid,
       displayName: nickname,
       createdAt: Date.now(),
+      msgToken: msgToken || null,
     };
     try {
-      await addDoc(collection(dbService, "users"), userData);
+      await setDoc(doc(dbService, "users", uid), userData);
       localStorage.setItem("simple-auth-user", JSON.stringify(userData));
       setUserInfo(userData);
       setIsLoggedIn(true);
@@ -55,6 +71,37 @@ function App() {
     }
   };
 
+  const updateUserMsgSettings = async (msgToken, enabled) => {
+    const userRef = doc(dbService, "users", userInfo.uid);
+    await updateDoc(userRef, {
+      notificationsEnabled: enabled,
+      ...(msgToken && !userInfo.msgToken ? { msgToken } : {}), // 토큰 새로 받았을 때만 저장
+    });
+
+    const updatedUser = {
+      ...userInfo,
+      notificationsEnabled: enabled,
+      msgToken: msgToken ?? userInfo.msgToken,
+    };
+
+    localStorage.setItem("simple-auth-user", JSON.stringify(updatedUser));
+    setUserInfo(updatedUser);
+  };
+
+  useEffect(() => {
+    const swPath = `${process.env.PUBLIC_URL}/firebase-messaging-sw.js`;
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker
+        .register(swPath)
+        .then((registration) => {
+          console.log("서비스 워커 등록 성공", registration);
+        })
+        .catch((error) => {
+          console.error("서비스 워커 등록 실패", error);
+        });
+    }
+  }, []);
+
   return (
     <>
       <AppRouter
@@ -63,6 +110,7 @@ function App() {
         loginWithNickname={loginWithNickname}
         logout={logout}
         updateUserDisplayName={updateUserDisplayName}
+        updateUserMsgSettings={updateUserMsgSettings}
       />
       <footer>&copy; daiitsuki {new Date().getFullYear()}</footer>
     </>
