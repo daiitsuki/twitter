@@ -5,13 +5,14 @@ importScripts(
   "https://www.gstatic.com/firebasejs/9.6.10/firebase-messaging-compat.js"
 );
 
+const params = new URL(location).searchParams;
 firebase.initializeApp({
-  apiKey: "AIzaSyBeM_8ldWDc8TKjDNdkQx4tFfJYCxmEk8I",
-  authDomain: "twitter-2b855.firebaseapp.com",
-  projectId: "twitter-2b855",
-  storageBucket: "twitter-2b855.appspot.com",
-  messagingSenderId: "761759590132",
-  appId: "1:761759590132:web:36e1aa2e227c49330ce0a1",
+  apiKey: params.get("apiKey"),
+  authDomain: params.get("authDomain"),
+  projectId: params.get("projectId"),
+  storageBucket: params.get("storageBucket"),
+  messagingSenderId: params.get("messagingSenderId"),
+  appId: params.get("appId"),
 });
 
 const messaging = firebase.messaging();
