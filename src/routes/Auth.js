@@ -48,7 +48,7 @@ const Auth = ({ loginWithNickname }) => {
           name="password"
           value={password}
           onChange={onChange}
-          placeholder="코드를 입력하세요"
+          placeholder="우리의 기념일! 4자리 숫자"
         />
         <input className={styles.button} type="submit" value="입장하기" />
         <span className={styles.error}>{error}</span>
