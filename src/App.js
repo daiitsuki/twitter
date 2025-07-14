@@ -14,8 +14,12 @@ function App() {
     const savedUser = localStorage.getItem("simple-auth-user");
     if (savedUser) {
       const parsedUser = JSON.parse(savedUser);
-      setUserInfo(parsedUser);
-      setIsLoggedIn(true);
+      if (!parsedUser.forceLogout) {
+        localStorage.removeItem("simple-auth-user");
+      } else {
+        setUserInfo(parsedUser);
+        setIsLoggedIn(true);
+      }
     }
   }, []);
 
@@ -45,6 +49,7 @@ function App() {
       displayName: nickname,
       createdAt: Date.now(),
       msgToken: msgToken || null,
+      forceLogout: true,
     };
 
     try {
