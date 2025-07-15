@@ -108,25 +108,29 @@ function App() {
 
   useEffect(() => {
     const swPath = `${process.env.PUBLIC_URL}/firebase-messaging-sw.js?apiKey=${process.env.REACT_APP_API_KEY}&authDomain=${process.env.REACT_APP_AUTH_DOMAIN}&projectId=${process.env.REACT_APP_PROJECT_ID}&storageBucket=${process.env.REACT_APP_STORAGE_BUCKET}&messagingSenderId=${process.env.REACT_APP_MESSAGING_SENDER_ID}&appId=${process.env.REACT_APP_APP_ID}`;
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.getRegistration(swPath).then((registration) => {
-        if (registration) {
-          console.log(
-            "이미 등록된 서비스 워커가 있습니다. 업데이트를 시도합니다."
-          );
-          registration.update();
-        } else {
-          navigator.serviceWorker
-            .register(swPath)
-            .then((registration) => {
-              console.log("서비스 워커 등록 성공", registration);
-            })
-            .catch((error) => {
-              console.error("서비스 워커 등록 실패", error);
-            });
+    
+    const cleanupAndRegister = async () => {
+      if ("serviceWorker" in navigator) {
+        try {
+          // 기존에 등록된 모든 서비스 워커를 가져옵니다.
+          const registrations = await navigator.serviceWorker.getRegistrations();
+          
+          // 모든 서비스 워커를 해제합니다.
+          const unregisterPromises = registrations.map(registration => registration.unregister());
+          await Promise.all(unregisterPromises);
+          console.log("기존 서비스 워커를 모두 해제했습니다.");
+
+          // 최신 서비스 워커를 새로 등록합니다.
+          const registration = await navigator.serviceWorker.register(swPath);
+          console.log("최신 서비스 워커 등록 성공:", registration);
+
+        } catch (error) {
+          console.error("서비스 워커 정리 및 재등록 실패:", error);
         }
-      });
-    }
+      }
+    };
+
+    cleanupAndRegister();
   }, []);
 
   return (

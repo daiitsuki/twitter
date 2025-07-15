@@ -47,13 +47,19 @@ const Profile = ({
 
       let token = userInfo.msgToken;
       if (!token) {
+        let registration = await navigator.serviceWorker.getRegistration(
+          "/twitter/"
+        );
+        if (!registration) {
+          registration = await navigator.serviceWorker.register(
+            "/twitter/firebase-messaging-sw.js",
+            { scope: "/twitter/" }
+          );
+        }
         token = await getToken(messaging, {
           vapidKey:
             "BHSrTsbuFPyMNqqrt6r9SMRG3ysncEjssMu3k3LUsP_IcTxpF5Dy3ntvkpkG9DGL6ooh_X8_NfIr23R5gnD3jmg",
-          serviceWorkerRegistration: await navigator.serviceWorker.register(
-            "/twitter/firebase-messaging-sw.js",
-            { scope: "/twitter/" }
-          ),
+          serviceWorkerRegistration: registration,
         });
       }
 
