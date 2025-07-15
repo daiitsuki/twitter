@@ -2,7 +2,7 @@ import "./fbase";
 import { useEffect, useState } from "react";
 import AppRouter from "./components/Router";
 import { dbService, messaging } from "./fbase";
-import { doc, updateDoc, setDoc } from "firebase/firestore";
+import { doc, updateDoc, setDoc, deleteDoc } from "firebase/firestore";
 import { v4 as uuidv4 } from "uuid";
 import { getToken } from "firebase/messaging";
 
@@ -62,7 +62,14 @@ function App() {
     }
   };
 
-  const logout = () => {
+  const logout = async () => {
+    if (userInfo && userInfo.uid) {
+      try {
+        await deleteDoc(doc(dbService, "users", userInfo.uid));
+      } catch (error) {
+        console.error("Error deleting user from database: ", error);
+      }
+    }
     localStorage.removeItem("simple-auth-user");
     setUserInfo(null);
     setIsLoggedIn(false);
@@ -104,7 +111,10 @@ function App() {
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.getRegistration(swPath).then((registration) => {
         if (registration) {
-          console.log("이미 등록된 서비스 워커가 있습니다:", registration);
+          console.log(
+            "이미 등록된 서비스 워커가 있습니다. 업데이트를 시도합니다."
+          );
+          registration.update();
         } else {
           navigator.serviceWorker
             .register(swPath)
