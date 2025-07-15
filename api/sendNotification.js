@@ -24,12 +24,10 @@ const messaging = admin.messaging();
 
 module.exports = async (req, res) => {
   // --- 시작: CORS 헤더 설정 ---
-  // 사용자의 gh-pages 주소를 정확하게 입력합니다.
   res.setHeader("Access-Control-Allow-Origin", "https://daiitsuki.github.io");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
-  // 브라우저가 보내는 사전 요청(preflight request)에 대한 처리
   if (req.method === "OPTIONS") {
     return res.status(204).send("");
   }
@@ -55,6 +53,7 @@ module.exports = async (req, res) => {
   try {
     const usersSnapshot = await db.collection("users").get();
     const tokens = [];
+
     usersSnapshot.forEach((doc) => {
       const user = doc.data();
       if (doc.id !== senderId && user.msgToken && user.notificationsEnabled) {
@@ -79,6 +78,40 @@ module.exports = async (req, res) => {
       "성공적으로 알림 전송 시도:",
       `${response.successCount}개 성공, ${response.failureCount}개 실패`
     );
+
+    const failedTokens = [];
+
+    response.responses.forEach((resp, idx) => {
+      if (!resp.success) {
+        const failedToken = tokens[idx];
+        console.error(`❌ 실패한 토큰: ${failedToken}`);
+        console.error(`   ↳ 실패 사유: ${resp.error?.message}`);
+
+        if (
+          resp.error?.message?.includes("Requested entity was not found") ||
+          resp.error?.message?.includes("NotRegistered")
+        ) {
+          failedTokens.push(failedToken);
+        }
+      }
+    });
+
+    // Firestore에서 무효한 토큰 삭제
+    if (failedTokens.length > 0) {
+      const batch = db.batch();
+
+      usersSnapshot.forEach((doc) => {
+        const data = doc.data();
+        if (failedTokens.includes(data.msgToken)) {
+          const ref = db.collection("users").doc(doc.id);
+          batch.update(ref, { msgToken: admin.firestore.FieldValue.delete() });
+          console.log(`🧹 Firestore에서 삭제할 토큰: ${data.msgToken}`);
+        }
+      });
+
+      await batch.commit();
+      console.log("✅ Firestore에서 무효한 토큰 삭제 완료");
+    }
 
     res.status(200).json({ success: true, response });
   } catch (error) {
