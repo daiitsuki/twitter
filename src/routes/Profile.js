@@ -1,8 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./Profile.module.css";
-import { getToken } from "firebase/messaging";
-import { messaging } from "../fbase";
 import { faBell, faBellSlash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 

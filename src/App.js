@@ -9,11 +9,11 @@ import { getToken } from "firebase/messaging";
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userInfo, setUserInfo] = useState(null);
+  const [msgToken, setMsgToken] = useState("");
 
-  const loginWithNickname = async (nickname) => {
-    const uid = uuidv4();
-    let msgToken = null;
+  useEffect(() => getTokenF, []);
 
+  const getTokenF = async () => {
     try {
       // 수정 2: PUBLIC_URL 기반으로 경로 생성
       const registration = await navigator.serviceWorker.getRegistration(
@@ -21,17 +21,22 @@ function App() {
       );
 
       if (registration) {
-        msgToken = await getToken(messaging, {
+        const token = await getToken(messaging, {
           vapidKey:
             "BHSrTsbuFPyMNqqrt6r9SMRG3ysncEjssMu3k3LUsP_IcTxpF5Dy3ntvkpkG9DGL6ooh_X8_NfIr23R5gnD3jmg",
           serviceWorkerRegistration: registration,
         });
+        setMsgToken(token);
       } else {
         console.warn("서비스 워커가 등록되지 않았습니다.");
       }
     } catch (err) {
       console.warn("FCM 토큰 가져오기 실패", err);
     }
+  };
+
+  const loginWithNickname = async (nickname) => {
+    const uid = uuidv4();
 
     const userData = {
       uid,
