@@ -96,23 +96,6 @@ module.exports = async (req, res) => {
       }
     });
 
-    // Firestore에서 무효한 토큰 삭제
-    if (failedTokens.length > 0) {
-      const batch = db.batch();
-
-      usersSnapshot.forEach((doc) => {
-        const data = doc.data();
-        if (failedTokens.includes(data.msgToken)) {
-          const ref = db.collection("users").doc(doc.id);
-          batch.update(ref, { msgToken: admin.firestore.FieldValue.delete() });
-          console.log(`🧹 Firestore에서 삭제할 토큰: ${data.msgToken}`);
-        }
-      });
-
-      await batch.commit();
-      console.log("✅ Firestore에서 무효한 토큰 삭제 완료");
-    }
-
     res.status(200).json({ success: true, response });
   } catch (error) {
     console.error("알림 전송 중 에러 발생:", error);
