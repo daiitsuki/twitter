@@ -46,30 +46,6 @@ const Profile = ({
         await updateUserMsgSettings(userInfo.msgToken, false);
         return;
       }
-
-      let token = userInfo.msgToken;
-      if (!token) {
-        let registration = await navigator.serviceWorker.getRegistration(
-          "/twitter/"
-        );
-        if (!registration) {
-          registration = await navigator.serviceWorker.register(
-            "/twitter/firebase-messaging-sw.js",
-            { scope: "/twitter/" }
-          );
-        }
-        token = await getToken(messaging, {
-          vapidKey:
-            "BHSrTsbuFPyMNqqrt6r9SMRG3ysncEjssMu3k3LUsP_IcTxpF5Dy3ntvkpkG9DGL6ooh_X8_NfIr23R5gnD3jmg",
-          serviceWorkerRegistration: registration,
-        });
-      }
-
-      if (token) {
-        await updateUserMsgSettings(token, true);
-      } else {
-        await updateUserMsgSettings(null, false); // 예외적으로 null 처리
-      }
     } catch (error) {
       console.error("알림 설정 실패:", error);
       await updateUserMsgSettings(userInfo.msgToken, false);

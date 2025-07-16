@@ -16,9 +16,8 @@ function App() {
 
     try {
       // 수정 2: PUBLIC_URL 기반으로 경로 생성
-      const basePath = process.env.PUBLIC_URL || "/twitter/";
       const registration = await navigator.serviceWorker.getRegistration(
-        basePath
+        "/twitter/"
       );
 
       if (registration) {
@@ -38,8 +37,8 @@ function App() {
       uid,
       displayName: nickname,
       createdAt: Date.now(),
-      msgToken: msgToken || null,
-      notificationsEnabled: !!msgToken, // 수정 3: 기본값 설정
+      msgToken: msgToken,
+      notificationsEnabled: true,
     };
 
     try {
