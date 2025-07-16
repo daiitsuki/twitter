@@ -10,21 +10,6 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userInfo, setUserInfo] = useState(null);
 
-  // 수정 1: forceLogout 논리 수정
-  useEffect(() => {
-    const savedUser = localStorage.getItem("simple-auth-user");
-    if (savedUser) {
-      const parsedUser = JSON.parse(savedUser);
-      if (!parsedUser.forceLogout) {
-        // forceLogout이 false 저장된 유저 정보 삭제 (강제 로그아웃)
-        localStorage.removeItem("simple-auth-user");
-      } else {
-        setUserInfo(parsedUser);
-        setIsLoggedIn(true);
-      }
-    }
-  }, []);
-
   const loginWithNickname = async (nickname) => {
     const uid = uuidv4();
     let msgToken = null;
@@ -54,7 +39,6 @@ function App() {
       displayName: nickname,
       createdAt: Date.now(),
       msgToken: msgToken || null,
-      forceLogout: false, // 로그인 성공 시 false로 설정
       notificationsEnabled: !!msgToken, // 수정 3: 기본값 설정
     };
 
