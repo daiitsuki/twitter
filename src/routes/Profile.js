@@ -14,9 +14,8 @@ const Profile = ({
 }) => {
   const [newProfileName, setNewProfileName] = useState(userInfo.displayName);
   const navigate = useNavigate();
-
   const isReceivingNotifications =
-    userInfo?.msgToken && userInfo?.notificationsEnabled;
+    userInfo.msgToken && userInfo.notificationsEnabled;
 
   const onLogOutClick = () => {
     logout();
@@ -34,8 +33,6 @@ const Profile = ({
   };
 
   const toggleNotification = async () => {
-    const basePath = process.env.PUBLIC_URL || "/";
-
     // 알림 끄기
     if (isReceivingNotifications) {
       await updateUserMsgSettings(userInfo.msgToken, false);
@@ -46,7 +43,6 @@ const Profile = ({
     try {
       const permission = await Notification.requestPermission();
       if (permission !== "granted") {
-        alert("알림 권한이 거부되었습니다.");
         await updateUserMsgSettings(userInfo.msgToken, false);
         return;
       }
@@ -54,15 +50,14 @@ const Profile = ({
       let token = userInfo.msgToken;
       if (!token) {
         let registration = await navigator.serviceWorker.getRegistration(
-          basePath
+          "/twitter/"
         );
         if (!registration) {
           registration = await navigator.serviceWorker.register(
-            `${basePath}/firebase-messaging-sw.js`,
-            { scope: `${basePath}` }
+            "/twitter/firebase-messaging-sw.js",
+            { scope: "/twitter/" }
           );
         }
-
         token = await getToken(messaging, {
           vapidKey:
             "BHSrTsbuFPyMNqqrt6r9SMRG3ysncEjssMu3k3LUsP_IcTxpF5Dy3ntvkpkG9DGL6ooh_X8_NfIr23R5gnD3jmg",
@@ -73,12 +68,10 @@ const Profile = ({
       if (token) {
         await updateUserMsgSettings(token, true);
       } else {
-        alert("알림 토큰을 발급받지 못했습니다.");
-        await updateUserMsgSettings(null, false);
+        await updateUserMsgSettings(null, false); // 예외적으로 null 처리
       }
     } catch (error) {
       console.error("알림 설정 실패:", error);
-      alert("알림 설정 중 오류가 발생했습니다.");
       await updateUserMsgSettings(userInfo.msgToken, false);
     }
   };
@@ -87,7 +80,6 @@ const Profile = ({
     <>
       <div className={styles.profile}>
         <div className={styles.userName}>{userInfo.displayName}님의 프로필</div>
-
         <span>프로필명 변경</span>
         <form onSubmit={onSubmit} className={styles.form}>
           <input
@@ -101,7 +93,6 @@ const Profile = ({
           />
           <input type="submit" value="변경" className={styles.confirm} />
         </form>
-
         <br />
         <span>알림 설정</span>
         <div className={styles.form}>
@@ -111,11 +102,19 @@ const Profile = ({
               : "알림을 받지 않습니다."}
           </span>
           <button onClick={toggleNotification} className={styles.confirm}>
-            <FontAwesomeIcon
-              icon={isReceivingNotifications ? faBell : faBellSlash}
-              size="xl"
-              style={{ color: "#3a1d1d" }}
-            />
+            {isReceivingNotifications ? (
+              <FontAwesomeIcon
+                icon={faBell}
+                size="xl"
+                style={{ color: "#3a1d1d" }}
+              />
+            ) : (
+              <FontAwesomeIcon
+                icon={faBellSlash}
+                size="xl"
+                style={{ color: "#3a1d1d" }}
+              />
+            )}
           </button>
         </div>
       </div>

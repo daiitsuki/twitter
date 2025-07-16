@@ -25,9 +25,9 @@ const Home = ({ userInfo }) => {
       collection(dbService, "tweets"),
       orderBy("createdAt", "desc"),
       //////////////////////
-      //  20개로 개수제한  //
+      // 개수제한  //
       //////////////////////
-      limit(20)
+      limit(30)
     );
     onSnapshot(q, (snapshot) => {
       const tweetArr = snapshot.docs.map((doc) => ({
